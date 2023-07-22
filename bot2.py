@@ -2,7 +2,7 @@ import requests
 import time
 
 
-"""Бот присылает картинки с мопсами при отправке любого сообщения и выводит в консоль данные о юзере"""
+
 
 api_url : str = 'https://api.telegram.org/bot'
 bot_token : str = '6351251112:AAEchaYBDiGbrz0UDicVQP9N_T1ezhB5lqc'
