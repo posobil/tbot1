@@ -2,8 +2,6 @@ import requests
 import time
 
 
-
-
 api_url : str = 'https://api.telegram.org/bot'
 bot_token : str = '6351251112:AAEchaYBDiGbrz0UDicVQP9N_T1ezhB5lqc'
 api_cats: str = 'https://api.thecatapi.com/v1/images/search'
