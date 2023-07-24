@@ -1,53 +1,54 @@
+from aiogram import Bot, Dispatcher, F
+from aiogram.filters import Command
+from aiogram.types import Message
 import requests
-import time
 
+# Вместо BOT TOKEN HERE нужно вставить токен вашего бота, полученный у @BotFather
+API_TOKEN: str = '6351251112:AAEchaYBDiGbrz0UDicVQP9N_T1ezhB5lqc'
 
-"""Бот присылает картинки с мопсами при отправке любого сообщения и выводит в консоль данные о пользователе"""
-
-api_url : str = 'https://api.telegram.org/bot'
-bot_token : str = '6351251112:AAEchaYBDiGbrz0UDicVQP9N_T1ezhB5lqc'
-api_pugs: str = 'https://api.thecatapi.com/v1/images/search'
-text : str = 'Апдейт'
-max_counter : int = 100
-timeout : int = 60 # задаю таймаут ожидания обновления для запроса &timeout={timeout}
-
-
-offset: int = 49193058
-counter: int = 0
-count : int = 0
-chat_id: int
-of1 : int = 0
+# Создаем объекты бота и диспетчера
+bot: Bot = Bot(token=API_TOKEN)
+dp: Dispatcher = Dispatcher()
 
 api_pugs : str = 'https://dog.ceo/api/breed/pug/images/random'
 pug_up = requests.get(api_pugs).json()
 pug_link = pug_up['message']
 
 
-while counter < max_counter:
-    updates = requests.get(f'{api_url}{bot_token}/getUpdates?offset={offset + 1}&timeout={timeout}').json()
-    if updates['result']:
-        for result in updates['result']:
-            #offset = result['update_id']
-            of1 = result['update_id']
-            if of1 <= offset:
-                time.sleep(0)
-            else:
-                print('atempt = ', count)
-                offset = result['update_id']
-                chat_id = result['message']['from']['id']
-                tt = updates
-                pug_up = requests.get(api_pugs)
-                if pug_up.status_code == 200:
-                    pug_link = pug_up.json()['message']
-                    text = result["message"]["text"]
-                    requests.get(f'{api_url}{bot_token}/sendPhoto?chat_id={chat_id}&photo={pug_link}&caption=Твое сообщение: {text}\nА еще Влад ПИДОР \U0001F970')
-                    first_name = result["message"]["from"]["first_name"]
-                    username = result["message"]["from"]["username"]
-                    idch = result["message"]["from"]["id"]
-                    date = result["message"]["date"]
-                    print(f'Имя - {first_name} \nНикнейм = {username}\nID чата = {idch}\nТекст сообщения - {text}\nДата отправки в UNIX - {date}')
-                counter += 1
-                count += 1
-                offset = of1
-                print(f'id обновления {of1}')
+# Этот хэндлер будет срабатывать на команду "/start"
+async def process_start_command(message: Message):
+    await message.answer('Привет!\nМеня зовут Эхо-бот!\nНапиши мне что-нибудь')
+    print(message.model_dump_json(indent=4, exclude_none=True))
 
+
+# Этот хэндлер будет срабатывать на команду "/help"
+async def process_help_command(message: Message):
+    await message.answer('Напиши мне что-нибудь и в ответ '
+                         'я пришлю тебе твое сообщение')
+
+
+# Этот хэндлер будет срабатывать на отправку боту фото
+async def send_photo_echo(message: Message):
+    await message.reply_photo(message.photo[0].file_id)
+
+async def send_sticker_echo(message: Message):
+    await message.reply_sticker(message.sticker.file_id)
+    print(message.model_dump_json(indent=4, exclude_none=True))
+
+
+# Этот хэндлер будет срабатывать на любые ваши текстовые сообщения,
+# кроме команд "/start" и "/help"
+async def send_echo(message: Message):
+    await message.reply(text=message.text)
+    print(message.model_dump_json(indent=4, exclude_none=True))
+
+
+# Регистрируем хэндлеры
+dp.message.register(process_start_command, Command(commands=["start"]))
+dp.message.register(process_help_command, Command(commands=['help']))
+dp.message.register(send_photo_echo, F.photo)
+dp.message.register(send_sticker_echo, F.sticker)
+dp.message.register(send_echo)
+
+if __name__ == '__main__':
+    dp.run_polling(bot)
