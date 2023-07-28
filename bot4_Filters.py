@@ -2,7 +2,17 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 from aiogram.filters import BaseFilter
-import os # Импортирую библиотеку для использования данных из окружения
+from environs import Env
+
+env = Env()  # Создаем экземпляр класса Env
+env.read_env()  # Методом read_env() читаем файл .env и загружаем из него переменные в окружение
+
+bot_token = env('BOT_TOKEN')  # Сохраняем значение переменной окружения в переменную bot_token
+admin_id = env.int('ADMIN_ID')  # Преобразуем значение переменной окружения к типу int
+# и сохраняем в переменной admin_id
+
+print(bot_token)
+print(admin_id)
 
 # Вместо BOT TOKEN HERE нужно вставить токен вашего бота,
 # полученный у @BotFather
@@ -45,7 +55,7 @@ async def answer_if_admins_update(message: Message):
 async def answer_if_not_admins_update(message: Message):
     await message.answer(text='Вы не админ')
 
-print(os.getenv('BOT_TOKEN')) # Вывожу в консоль переменную из окружения (токен бота)
+
 
 if __name__ == '__main__':
     dp.run_polling(bot)
